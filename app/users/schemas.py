@@ -1,7 +1,6 @@
 from pydantic import BaseModel, EmailStr
-from datetime import date
 
 
-class SUserRegister(BaseModel):
+class SUserAuth(BaseModel):
     email: EmailStr
     passrowd: str
