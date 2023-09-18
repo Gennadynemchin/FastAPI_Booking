@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: int
     DB_NAME: str
+    JWT_KEY: str
+    JWT_ENCODE_ALGORITHM: str
 
     class Config:
         env_file = '.env'
