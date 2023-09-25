@@ -37,3 +37,8 @@ class JWTNotFoundException(BookingException):
 class UserIDDoesNotExistsException(BookingException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = 'User id does not exists'
+
+
+class RoomIsNotAvailable(BookingException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = 'Room is not available'
