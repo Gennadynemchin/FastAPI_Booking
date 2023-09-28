@@ -3,7 +3,7 @@ from app.hotels.rooms.schemas import SRooms
 from app.hotels.rooms.dao import RoomsDAO
 
 
-router = APIRouter(prefix='/hotels')
+router = APIRouter(prefix='/hotels', tags=['Get rooms of requested hotel'])
 
 
 @router.get('/{hotel_id}/rooms')
