@@ -21,7 +21,7 @@ class HotelsDAO(BaseDAO):
         async with async_session_maker() as session:
             get_hotels_by_location = select(cls.model.__table__.columns).where(cls.model.location.contains(location))
 
-            subquery = select(Bookings.room_id, func.count(Bookings.room_id).label('count_booked')).where(
+            count_booked = select(Bookings.room_id, func.count(Bookings.room_id).label('count_booked')).where(
                     or_(
                         and_(
                             Bookings.date_from >= date_from,
@@ -32,9 +32,14 @@ class HotelsDAO(BaseDAO):
                             Bookings.date_to > date_from
                         )
                     )
-            ).group_by(Bookings.room_id).cte('subquery')
+            ).group_by(Bookings.room_id).cte('count_booked')
 
-            subquery2 = select(Rooms.id, coalesce(Rooms.quantity - subquery.c.count_booked, Rooms.quantity).label('test')).select_from(Rooms).join(subquery, subquery.c.room_id == Rooms.id, isouter=True).group_by(Rooms.id, 'test')
+            available_rooms = coalesce(Rooms.quantity - count_booked.c.count_booked, Rooms.quantity)
 
-            subquery_result = await session.execute(subquery2)
-            return subquery_result.mappings().all()
+            get_available_rooms = select(Rooms.id, Rooms.hotel_id, available_rooms).select_from(Rooms).join(
+                count_booked, count_booked.c.room_id == Rooms.id, isouter=True).group_by(Rooms.id, available_rooms).having(available_rooms > 0)
+
+
+
+            result = await session.execute(get_available_rooms)
+            return result.mappings().all()
