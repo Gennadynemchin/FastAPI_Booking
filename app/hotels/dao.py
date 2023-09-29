@@ -34,12 +34,12 @@ class HotelsDAO(BaseDAO):
                     )
             ).group_by(Bookings.room_id).cte('count_booked')
 
-            available_rooms = coalesce(Rooms.quantity - count_booked.c.count_booked, Rooms.quantity)
+            available_rooms = coalesce(Rooms.quantity - count_booked.c.count_booked, Rooms.quantity).label('available_rooms')
 
             get_available_rooms = select(Rooms.id, Rooms.hotel_id, available_rooms).select_from(Rooms).join(
-                count_booked, count_booked.c.room_id == Rooms.id, isouter=True).group_by(Rooms.id, available_rooms).having(available_rooms > 0)
+                count_booked, count_booked.c.room_id == Rooms.id, isouter=True).group_by(Rooms.id, available_rooms).having(available_rooms > 0).cte('get_available_rooms')
 
+            get_available_hotels = select(Hotels.name, Hotels.location).select_from(Hotels).where(Hotels.location.contains(location)).join(get_available_rooms, get_available_rooms.c.hotel_id == Hotels.id)
 
-
-            result = await session.execute(get_available_rooms)
+            result = await session.execute(get_available_hotels)
             return result.mappings().all()
