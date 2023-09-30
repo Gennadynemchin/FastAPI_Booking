@@ -9,7 +9,7 @@ from app.dao.base import BaseDAO
 from app.database import async_session_maker
 from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
-from sqlalchemy import select
+from sqlalchemy import select, distinct
 from datetime import date
 
 
@@ -39,7 +39,21 @@ class HotelsDAO(BaseDAO):
             get_available_rooms = select(Rooms.id, Rooms.hotel_id, available_rooms).select_from(Rooms).join(
                 count_booked, count_booked.c.room_id == Rooms.id, isouter=True).group_by(Rooms.id, available_rooms).having(available_rooms > 0).cte('get_available_rooms')
 
-            get_available_hotels = select(Hotels.name, Hotels.location).select_from(Hotels).where(Hotels.location.contains(location)).join(get_available_rooms, get_available_rooms.c.hotel_id == Hotels.id)
+            get_available_hotels = select(
+                                          Hotels.id,
+                                          Hotels.name,
+                                          Hotels.location,
+                                          Hotels.services,
+                                          Hotels.rooms_quantity,
+                                          get_available_rooms.c.available_rooms,
+                                          Hotels.image_id
+                                         ).select_from(
+                                                       Hotels
+                                                      ).where(
+                                                              Hotels.location.contains(location)
+                                                             ).join(
+                                                                    get_available_rooms,
+                                                                    get_available_rooms.c.hotel_id == Hotels.id).group_by(Hotels.id, get_available_rooms.c.available_rooms)
 
             result = await session.execute(get_available_hotels)
             return result.mappings().all()
