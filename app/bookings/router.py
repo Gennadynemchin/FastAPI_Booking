@@ -24,3 +24,9 @@ async def add_booking(room_id: int, date_from: date, date_to: date, user: Users 
     if not booking:
         raise RoomIsNotAvailable
     return booking
+
+
+@router.delete('')
+async def delete_booking(booking_id: int, user: Users = Depends(get_current_user)):
+    booking = await BookingDAO.delete_data(id=booking_id)
+    return booking

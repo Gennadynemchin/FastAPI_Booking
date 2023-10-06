@@ -1,5 +1,5 @@
 from app.database import async_session_maker
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, delete
 
 from app.hotels.rooms.models import Rooms
 
@@ -39,5 +39,15 @@ class BaseDAO:
         async with async_session_maker() as session:
             query = insert(cls.model).values(**data)
             await session.execute(query)
+            await session.commit()
+            return None
+
+    @classmethod
+    async def delete_data(cls, **data):
+        async with async_session_maker() as session:
+            get_booking = select(cls.model).filter_by(**data)
+            booking = await session.execute(get_booking)
+            booking = booking.scalar_one()
+            await session.delete(booking)
             await session.commit()
             return None
