@@ -1,6 +1,6 @@
 from app.database import async_session_maker
 from sqlalchemy import select, insert, delete
-
+from sqlalchemy.exc import NoResultFound
 from app.hotels.rooms.models import Rooms
 
 
@@ -45,9 +45,12 @@ class BaseDAO:
     @classmethod
     async def delete_data(cls, **data):
         async with async_session_maker() as session:
-            get_booking = select(cls.model).filter_by(**data)
-            booking = await session.execute(get_booking)
-            booking = booking.scalar_one()
-            await session.delete(booking)
-            await session.commit()
-            return None
+            try:
+                get_booking = select(cls.model).filter_by(**data)
+                booking = await session.execute(get_booking)
+                booking = booking.scalar_one()
+                await session.delete(booking)
+                await session.commit()
+            except NoResultFound:
+                return None
+            return True
