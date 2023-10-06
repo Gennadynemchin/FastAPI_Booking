@@ -7,10 +7,12 @@ class SRooms(BaseModel):
     hotel_id: int
     name: str
     description: str
-    price: int
     services: list
+    price: int
     quantity: int
     image_id: int
+    available_rooms: int
+    total_cost: int
 
     class Config:
         orm_mode = True

@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import select, or_, and_, func
 from sqlalchemy.sql.functions import coalesce
 
@@ -39,7 +41,8 @@ class RoomsDAO(BaseDAO):
                                          Rooms.price,
                                          Rooms.quantity,
                                          Rooms.image_id,
-                                         available_rooms
+                                         available_rooms,
+                                         ((date_to - date_from).days * Rooms.price).label('total_cost')
                                          ).select_from(
                                                        Rooms
                                                       ).where(
