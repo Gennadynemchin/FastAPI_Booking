@@ -16,6 +16,7 @@ from app.images.router import router as router_upload
 from app.config import settings
 from app.database import engine
 from app.admin.views import UsersAdmin, BookingsAdmin, HotelsAdmin, RoomsAdmin
+from app.admin.auth import authentication_backend
 from sqladmin import Admin
 
 app = FastAPI()
@@ -47,7 +48,7 @@ async def startup():
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
 
-admin = Admin(app, engine)
+admin = Admin(app, engine, authentication_backend=authentication_backend)
 admin.add_view(UsersAdmin)
 admin.add_view(BookingsAdmin)
 admin.add_view(HotelsAdmin)
