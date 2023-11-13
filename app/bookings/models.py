@@ -13,3 +13,6 @@ class Bookings(Base):
     price = Column(Integer, nullable=False)
     total_cost = Column(Integer, Computed('(date_to - date_from) * price'))
     total_days = Column(Integer, Computed('(date_to - date_from)'))
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

@@ -5,6 +5,8 @@ from app.users.models import Users
 from app.users.dependencies import get_current_user
 from datetime import date
 from app.exceptions import RoomIsNotAvailable
+from app.tasks.tasks import send_booking_confirmation_email
+
 
 router = APIRouter(prefix='/bookings', tags=['Bookings'])
 
@@ -23,6 +25,8 @@ async def add_booking(room_id: int, date_from: date, date_to: date, user: Users 
                                            date_to=date_to)
     if not booking:
         raise RoomIsNotAvailable
+    booking_to_send = booking.to_dict()
+    send_booking_confirmation_email.delay(booking_to_send, user.email)
     return booking
 
 

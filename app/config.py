@@ -9,6 +9,12 @@ class Settings(BaseSettings):
     DB_NAME: str
     JWT_KEY: str
     JWT_ENCODE_ALGORITHM: str
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASS: str
+    REDIS_HOST: str
+    REDIS_PORT: int
 
     class Config:
         env_file = '.env'
