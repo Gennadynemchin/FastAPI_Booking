@@ -15,11 +15,10 @@ from app.hotels.rooms.router import router as router_rooms
 from app.images.router import router as router_upload
 from app.config import settings
 from app.database import engine
-from app.users.models import Users
-from sqladmin import Admin, ModelView
+from app.admin.views import UsersAdmin, BookingsAdmin, HotelsAdmin, RoomsAdmin
+from sqladmin import Admin
 
 app = FastAPI()
-admin = Admin(app, engine)
 
 app.mount('/static', StaticFiles(directory='app/static'), 'static')
 
@@ -48,11 +47,8 @@ async def startup():
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
 
-class UserAdmin(ModelView, model=Users):
-    name_plural = 'Users'
-    can_delete = False
-    column_details_exclude_list = [Users.hashed_password]
-    column_list = [Users.id, Users.email]
-
-
-admin.add_view(UserAdmin)
+admin = Admin(app, engine)
+admin.add_view(UsersAdmin)
+admin.add_view(BookingsAdmin)
+admin.add_view(HotelsAdmin)
+admin.add_view(RoomsAdmin)
