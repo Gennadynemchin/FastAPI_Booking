@@ -20,6 +20,7 @@ def get_token(request: Request):
 async def get_current_user(token: str = Depends(get_token)):
     try:
         payload = jwt.decode(token, settings.JWT_KEY, settings.JWT_ENCODE_ALGORITHM)
+        print(payload)
     except JWTError:
         raise JWTNotValidException
     expire: str = payload.get('exp')

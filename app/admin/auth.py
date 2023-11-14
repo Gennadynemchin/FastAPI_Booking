@@ -21,12 +21,12 @@ class AdminAuth(AuthenticationBackend):
 
     async def authenticate(self, request: Request) -> bool:
         token = request.session.get("token")
-        user = get_current_user(token)
-        if not token:
-            return False
-        elif not user:
-            return False
-        return True
+        if token:
+            user = await get_current_user(token)
+            if user:
+                return True
+        RedirectResponse(request.url_for("admin:index"), status_code=302)
+        return False
 
 
 authentication_backend = AdminAuth(secret_key="...")
