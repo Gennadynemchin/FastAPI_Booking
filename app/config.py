@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
 
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+
     JWT_KEY: str
     JWT_ENCODE_ALGORITHM: str
     SMTP_HOST: str

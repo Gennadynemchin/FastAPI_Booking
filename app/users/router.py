@@ -15,7 +15,7 @@ async def register(user_data: SUserAuth):
     existing_user = await UserDAO.get_one_or_none(email=user_data.email)
     if existing_user:
         raise UserAlreadyExistsException
-    hashed_password = get_password_hash(user_data.passrowd)
+    hashed_password = get_password_hash(user_data.password)
     await UserDAO.add_data(email=user_data.email, hashed_password=hashed_password)
     return None
 
