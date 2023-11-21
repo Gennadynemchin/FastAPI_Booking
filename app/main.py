@@ -31,6 +31,7 @@ sentry_sdk.init(
 app = FastAPI()
 app = VersionedFastAPI(app)
 
+
 app.mount('/static', StaticFiles(directory='app/static'), 'static')
 
 app.include_router(router_bookings)
