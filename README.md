@@ -1,70 +1,72 @@
-### Описание
+### Description
 
-Небольшое приложение для бронирования отелей.
-Показывает основные возможности работы с FastAPI совместно с SQLAlchemy.
+A simple application for hotel reservations.
+Demonstrates the basic capabilities of working with FastAPI in conjunction with SQLAlchemy.
 
-Перед использованием приложения, необходимо произвести настройку подключения
-базы данных и миграцию.
+Before using the application, it is necessary to configure the database connection
+and perform migration.
 
-### Настройка
-Для установки зависимостей:
+[README_RU](README_RU.md)
+
+### Setup
+To install dependencies:
 ```commandline
 pip install -r requirements.txt
 ```
 
-URL подключения к базе данных находится в `app/config.py`:
+The URL for database connection is located in `app/config.py`:
 ```commandline
 postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}
 ```
 
-URL подключения к Redis находится в `app/main.py` и `app/tasks/celery_settings.py`
-Redis используется для кэширования (библиотека `fastapi_cache`)
-и для хранения фоновых задач Celery.
+The URL for connecting to Redis is found in `app/main.py` and `app/tasks/celery_settings.py`.
+Redis is used for caching (using the `fastapi_cache` library)
+and for storing background tasks in Celery.
 
-Переменные окружения расположены в файле `.env`. Необходимо переименовать `.env_sample`
-и прописать необходимые значения для запуска приложения:
+Environment variables are located in the `.env` file. It is necessary to rename `.env_sample`
+and specify the necessary values for launching the application:
 ```commandline
-LOG_LEVEL=INFO # Уровень логгирования при подключении логов
+LOG_LEVEL=INFO # Logging level when connecting logs
 
-DB_HOST=db # Адрес хоста для продключения к БД
-DB_PORT=5432 # Порт подключения
-DB_USER=postgres # Пользователь БД
-DB_PASS=123 # Пароль пользователя для доступа к БД
-DB_NAME=postgres # Название БД
+DB_HOST=db # Database host address
+DB_PORT=5432 # Connection port
+DB_USER=postgres # Database user
+DB_PASS=123 # User password for database access
+DB_NAME=postgres # Database name
 
-POSTGRES_DB=postgres # Название БД (для Docker)
-POSTGRES_USER=postgres # Пользователь БД (для Docker)
-POSTGRES_PASSWORD=123 # Пароль пользователя для доступа к БД (для Docker)
+POSTGRES_DB=postgres # Database name (for Docker)
+POSTGRES_USER=postgres # Database user (for Docker)
+POSTGRES_PASSWORD=123 # User password for database access (for Docker)
 
-JWT_KEY=123qwerty # JWT ключ
-JWT_ENCODE_ALGORITHM=HS256 # Тип кодирования JWT
+JWT_KEY=123qwerty # JWT key
+JWT_ENCODE_ALGORITHM=HS256 # JWT encoding type
 
-SMTP_HOST=smtp.gmail.com # SMTP сервер почты для рассылки
-SMTP_PORT=465 # Порт
-SMTP_USER=user@mail.com # Пользователь
-SMTP_PASS=yourpass # Пароль
+SMTP_HOST=smtp.gmail.com # SMTP server for email distribution
+SMTP_PORT=465 # Port
+SMTP_USER=user@mail.com # User
+SMTP_PASS=yourpass # Password
 
-REDIS_HOST=redis # Адрес хоста для подключения Redis
-REDIS_PORT=6379 # Порт
+REDIS_HOST=redis # Redis host address
+REDIS_PORT=6379 # Port
 ```
 
-Для миграции моделей необходимо выполнить:
+For model migration:
 ```commandline
 alembic upgrade head
 ```
 
-##### Ручная настройка Alembic:
-- В проекте присутствует директория `app/migrations` и файл `alembic.ini`. Если такого нет - необходимо выполнить:
+##### Manual Alembic setup:
+- The project contains the `app/migrations` and `alembic.ini`. If not, execute:
 ```commandline
 alembic init migrations
 ```
-- `alembic.ini` следует расположить в корне приложения, на одном уровне с директорией `app`
-- В файле `alembic.ini` прописать: 
+- Place `alembic.ini` at the root of the application, on the same level as the `app` directory
+- In the `alembic.ini` file, specify: 
 ```script_location = app/migrations```
-- В файле `app/migrations/env.py` необходимо добавить:
+- In the `app/migrations/env.py` file add:
 ```
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
-# необходимо для корректного импорта, т.к. alembic.ini расположен в корне проекта
+# necessary for correct import, as alembic.ini is located at the root of the project
 
 
 from app.config import settings
@@ -79,34 +81,33 @@ config = context.config
 config.set_main_option('sqlalchemy.url', f'{settings.get_url()}?async_fallback=True')
 target_metadata = Base.metadata
 ```
-- В корне проекта (там, где расположена диреткория `app`) необходимо выполнить:
+- In the root of the project (where the `app` directory is located), execute:
 ```commandline
 alembic revision --autogenerate -m 'Initial migration'
 ```
-Далее, выполнить миграцию:
+Then, do migration:
 ```commandline
 alembic upgrade head
 ```
 
-
-### Запуск dev сервера
+### Launch dev server
 ```commandline
 uvicorn app.main:app --reload
 ```
-### Запуск prod сервера
+### Launch prod server
 ```commandline
 gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
 ```
 
-### Запуск Celery для обработки фоновых задач:
+### Launch Celery for background tasks
 ```commandline
 celery -A app.tasks.celery_settings:celery worker --loglevel=INFO
 ```
 
-### Запуск Flower для мониторинга фотоновых задач:
+### Launch Flower for background tasks monitoring:
 ```commandline
 celery -A app.tasks.celery_settings:celery flower --loglevel=INFO
 ```
 
 ### Docker
-Для запуска в контейнере используйте `app/docker-compose.yaml`
+To run in a container, use `app/docker-compose.yaml`
